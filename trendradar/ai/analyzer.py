@@ -109,6 +109,7 @@ class AIAnalyzer:
         platforms: Optional[List[str]] = None,
         keywords: Optional[List[str]] = None,
         standalone_data: Optional[Dict] = None,
+        market_data: Optional[str] = None,
     ) -> AIAnalysisResult:
         """
         执行 AI 分析
@@ -190,6 +191,7 @@ class AIAnalyzer:
         if self.include_standalone and standalone_data:
             standalone_content, standalone_count = self._prepare_standalone_content(standalone_data)
         user_prompt = user_prompt.replace("{standalone_content}", standalone_content)
+        user_prompt = user_prompt.replace("{market_data}", market_data or "暂无市场数据")
 
         if self.debug:
             print("\n" + "=" * 80)

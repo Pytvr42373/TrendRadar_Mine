@@ -434,6 +434,7 @@ ai_analysis:
 
   include_rss: true                 # 是否包含 RSS 内容进行分析（true=包含, false=不包含）
   include_standalone: true          # 是否纳入独立展示区数据（true=纳入, false=不纳入）
+  include_market_data: true         # 是否抓取 A 股市场数据（AKShare）注入 AI 分析（true=启用）
 
   include_rank_timeline: true       # 排名时间线详细程度
                                     # true = 完整轨迹（如 1(09:30)->2(10:00)），AI 分析更准但多耗 0.5~1 倍 token

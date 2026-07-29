@@ -312,6 +312,7 @@ class NewsAnalyzer:
         current_results: Optional[Dict] = None,
         schedule: ResolvedSchedule = None,
         standalone_data: Optional[Dict] = None,
+        market_data: Optional[str] = None,
     ) -> Optional[AIAnalysisResult]:
         """执行 AI 分析"""
         analysis_config = self.ctx.config.get("AI_ANALYSIS", {})
@@ -404,6 +405,7 @@ class NewsAnalyzer:
                 platforms=platforms,
                 keywords=keywords,
                 standalone_data=ai_standalone,
+                market_data=market_data,
             )
 
             # 设置 AI 分析使用的模式
@@ -722,10 +724,23 @@ class NewsAnalyzer:
             # 获取模式策略来确定报告类型
             mode_strategy = self._get_mode_strategy()
             report_type = mode_strategy["report_type"]
+
+            # 抓取市场数据（AKShare），用于增强 AI 分析
+            market_data = None
+            if ai_config.get("INCLUDE_MARKET_DATA", False):
+                try:
+                    from trendradar.crawler.market import fetch_market_data
+                    print("[市场数据] 正在抓取 A 股市场数据...")
+                    market_data = fetch_market_data()
+                except Exception as e:
+                    print(f"[市场数据] 抓取失败: {e}")
+                    market_data = None
+
             ai_result = self._run_ai_analysis(
                 stats, rss_items, mode, report_type, id_to_name,
                 current_results=data_source, schedule=schedule,
-                standalone_data=standalone_data
+                standalone_data=standalone_data,
+                market_data=market_data,
             )
 
         # 翻译 RSS 和独立展示区内容（如果启用）— 在 HTML 生成前执行，确保网页版也能展示翻译内容
