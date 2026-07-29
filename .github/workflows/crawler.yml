@@ -126,7 +126,7 @@ jobs:
 
       - name: Install dependencies
         if: success()
-        run: run: uv sync --no-dev
+        run: uv sync --no-dev
 
       - name: Verify required files
         if: success()
