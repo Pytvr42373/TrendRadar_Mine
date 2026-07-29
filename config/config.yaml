@@ -145,21 +145,9 @@ rss:
       name: "36氪"
       url: "https://36kr.com/feed"
 
-    - id: "36kr-newsflashes"
-      name: "36氪快讯"
-      url: "https://36kr.com/feed-newsflash"
-
-    - id: "ithome"
-      name: "IT之家"
-      url: "https://www.ithome.com/rss/"
-
-    - id: "solidot"
-      name: "奇客Solidot"
-      url: "https://www.solidot.org/index.rss"
-
-    - id: "huxiu"
-      name: "虎嗅"
-      url: "https://www.huxiu.com/rss/0.xml"
+    - id: "wallstreetcn-news"
+      name: "华尔街见闻RSS"
+      url: "https://rsshub.app/wallstreetcn/news/global"
 
     # 自定义源示例
     # - id: "custom-feed"
@@ -246,28 +234,28 @@ display:
   # 调整顺序：剪切粘贴整行即可
   # 要显示某个区域，需同时：1. 在此列表中  2. 下方 regions 对应开关为 true
   region_order:
-    - new_items                           # 1️⃣ 新增热点区域
-    - hotlist                             # 2️⃣ 热榜区域（关键词匹配 / AI 智能筛选）
+    - ai_analysis                         # 1️⃣ AI 分析区域（主区域，放最前）
+    - hotlist                             # 2️⃣ 热榜区域（关键词匹配）
     - rss                                 # 3️⃣ RSS 订阅区域
     - standalone                          # 4️⃣ 独立展示区
-    - ai_analysis                         # 5️⃣ AI 分析区域
+    - new_items                           # 5️⃣ 新增热点区域
 
   # 推送区域开关（需配合上方 region_order 使用）
   regions:
-    hotlist: true                     # 热榜区域：关键词匹配 / AI 智能筛选（true=显示, false=隐藏）
+    hotlist: true                     # 热榜区域：关键词匹配（true=显示, false=隐藏）
     new_items: false                  # 新增热点区域：含热榜新增 + RSS 新增（true=显示, false=隐藏）
                                       # 注：热点词汇统计中的新增标记🆕不受此配置影响
 
-    rss: true                         # RSS 订阅区域（true=显示并分析, false=隐藏并跳过分析）
+    rss: false                        # RSS 订阅区域（false=隐藏但仍纳入AI分析，true=显示并分析）
     standalone: false                 # 独立展示区：完整热榜/RSS，不受关键词过滤（true=显示, false=隐藏）
     ai_analysis: true                 # AI 分析区域（true=显示, false=隐藏）
 
   # 独立展示区：将指定平台/RSS 完整展示，不受关键词过滤
   # 推送展示由 regions.standalone 控制，AI 分析由 ai_analysis.include_standalone 控制
   standalone:
-    platforms: ["wallstreetcn-hot", "cls-hot"]    # 热榜平台 ID 列表（财经向）
+    platforms: ["wallstreetcn-hot", "cls-hot"]    # 热榜平台 ID 列表（财经向，作为AI分析素材）
     rss_feeds: []                                # RSS 源 ID 列表（如 ["hacker-news"]）
-    max_items: 20                                # 每个源最多展示条数（0=不限制）
+    max_items: 30                                # 每个源最多展示条数（0=不限制）
 
 
 # ===============================================================
@@ -413,7 +401,7 @@ ai:
   temperature: 1.0                  # 采样温度 (0.0-2.0)
                                     # 注意：部分模型(如 gpt-5)可能要求必须为 1.0，否则会报错
   
-  max_tokens: 5000                  # 最大生成 token 数
+  max_tokens: 8000                  # 最大生成 token 数（增大以支持更详细的AI分析）
                                     # 注意：如果 API 不支持此参数(报 HTTP 400)，请设为 0 以禁用发送
   # 高级选项
   num_retries: 5                    # 失败重试次数（免费模型不稳定，多试几次）
@@ -441,7 +429,7 @@ ai_analysis:
                                     # follow_report = 跟随 report.mode（默认）
                                     # daily / current / incremental = 强制使用指定模式
 
-  max_news_for_analysis: 50         # 参与分析的新闻数量上限（控制 token 成本的关键项）
+  max_news_for_analysis: 100        # 参与分析的新闻数量上限（控制 token 成本的关键项）
                                     # 热榜优先占用配额，RSS 用剩余配额，独立展示区不受此限制
 
   include_rss: true                 # 是否包含 RSS 内容进行分析（true=包含, false=不包含）
