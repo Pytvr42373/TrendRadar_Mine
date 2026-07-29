@@ -141,6 +141,26 @@ rss:
       name: "雅虎财经"
       url: "https://finance.yahoo.com/news/rssindex"
 
+    - id: "36kr"
+      name: "36氪"
+      url: "https://36kr.com/feed"
+
+    - id: "36kr-newsflashes"
+      name: "36氪快讯"
+      url: "https://36kr.com/feed-newsflash"
+
+    - id: "ithome"
+      name: "IT之家"
+      url: "https://www.ithome.com/rss/"
+
+    - id: "solidot"
+      name: "奇客Solidot"
+      url: "https://www.solidot.org/index.rss"
+
+    - id: "huxiu"
+      name: "虎嗅"
+      url: "https://www.huxiu.com/rss/0.xml"
+
     # 自定义源示例
     # - id: "custom-feed"
     #   name: "自定义源"
@@ -168,7 +188,7 @@ report:
 
   rank_threshold: 5                   # 排名高亮阈值（影响展示强调，不改变抓取范围）
 
-  max_news_per_keyword: 0             # 每个关键词/标签最大显示数量（0=不限制，仅影响展示裁剪）
+  max_news_per_keyword: 3             # 每个关键词/标签最大显示数量（0=不限制，仅影响展示裁剪）
 
 
 # ===============================================================
@@ -245,7 +265,7 @@ display:
   # 独立展示区：将指定平台/RSS 完整展示，不受关键词过滤
   # 推送展示由 regions.standalone 控制，AI 分析由 ai_analysis.include_standalone 控制
   standalone:
-    platforms: ["zhihu", "wallstreetcn-hot"]     # 热榜平台 ID 列表（如 ["zhihu", "weibo"]）
+    platforms: ["wallstreetcn-hot", "cls-hot"]    # 热榜平台 ID 列表（财经向）
     rss_feeds: []                                # RSS 源 ID 列表（如 ["hacker-news"]）
     max_items: 20                                # 每个源最多展示条数（0=不限制）
 
@@ -415,16 +435,16 @@ ai_analysis:
                                     # 开启 schedule 后此项仍为总开关：false=永远不分析，true=由调度控制
 
   language: "Chinese"               # 分析报告语言（如 "English", "Korean", "法语"）
-  prompt_file: "ai_analysis_prompt.txt"   # 提示词文件（相对于 config 目录）
+  prompt_file: "custom/ai/finance_analysis_prompt.txt"   # 提示词文件（投资/财经视角）
 
   mode: "follow_report"             # AI 分析模式（可独立于 report.mode）
                                     # follow_report = 跟随 report.mode（默认）
                                     # daily / current / incremental = 强制使用指定模式
 
-  max_news_for_analysis: 150        # 参与分析的新闻数量上限（控制 token 成本的关键项）
+  max_news_for_analysis: 50         # 参与分析的新闻数量上限（控制 token 成本的关键项）
                                     # 热榜优先占用配额，RSS 用剩余配额，独立展示区不受此限制
 
-  include_rss: false                # 是否包含 RSS 内容进行分析（true=包含, false=不包含）
+  include_rss: true                 # 是否包含 RSS 内容进行分析（true=包含, false=不包含）
   include_standalone: true          # 是否纳入独立展示区数据（true=纳入, false=不纳入）
 
   include_rank_timeline: true       # 排名时间线详细程度
