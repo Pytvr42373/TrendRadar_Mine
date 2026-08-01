@@ -282,6 +282,7 @@ notification:
     wework:
       webhook_url: ""                 # 企业微信机器人 webhook URL
       msg_type: "markdown"            # 消息类型：markdown(群机器人) | text(个人微信应用)
+      pages_url: "https://pytvr42373.github.io/TrendRadar_Mine/"   # 精简卡片模式：GitHub Pages 完整报告链接（非空则只推卡片+链接）
 
     telegram:
       bot_token: ""                   # Telegram Bot Token
