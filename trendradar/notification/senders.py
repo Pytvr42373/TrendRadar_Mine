@@ -145,6 +145,8 @@ def send_to_feishu(
     ai_content = _render_ai_analysis(ai_analysis, "feishu") if ai_analysis else None
     ai_stats = _extract_ai_stats(ai_analysis)
 
+
+
     # 预留批次头部空间，避免添加头部后超限
     header_reserve = get_max_batch_header_size("feishu")
     batches = split_content_func(
@@ -361,6 +363,7 @@ def send_to_wework(
     ai_analysis: Any = None,
     display_regions: Optional[Dict] = None,
     standalone_data: Optional[Dict] = None,
+    pages_url: str = "",
 ) -> bool:
     """
     发送到企业微信（支持分批发送，支持 markdown 和 text 两种格式，支持热榜+RSS合并+独立展示区）
@@ -376,6 +379,7 @@ def send_to_wework(
         batch_size: 批次大小（字节）
         batch_interval: 批次发送间隔（秒）
         msg_type: 消息类型 (markdown/text)
+        pages_url: GitHub Pages 完整报告链接（非空时 markdown 模式改为精简卡片推送）
         split_content_func: 内容分批函数
         rss_items: RSS 统计条目列表（可选，用于合并推送）
         rss_new_items: RSS 新增条目列表（可选，用于新增区块）
@@ -405,6 +409,53 @@ def send_to_wework(
     # 渲染 AI 分析内容并提取统计数据
     ai_content = _render_ai_analysis(ai_analysis, "wework") if ai_analysis else None
     ai_stats = _extract_ai_stats(ai_analysis)
+
+    # === 精简卡片模式 ===
+    # 当配置了 WEWORK_PAGES_URL 且为 markdown 群机器人模式时，
+    # 只推送一张精简概览卡片 + GitHub Pages 完整报告链接，不再推送完整长文。
+    card_mode = (not is_text_mode) and bool(pages_url)
+    if card_mode:
+        _now = datetime.now()
+        # 构建统计数据概览
+        hotlist_total = sum(len(s["titles"]) for s in report_data.get("stats", []) if s.get("count", 0) > 0)
+        new_count = report_data.get("total_new_count", 0)
+        rss_count = sum(len(s.get("titles", [])) for s in (rss_items or []))
+        ai_count = 0
+        if ai_stats and ai_stats.get("analyzed_news", 0):
+            ai_count = ai_stats.get("analyzed_news", 0)
+        # 最热话题
+        topics = " | ".join(f"{s['word']}({s['count']})" for s in report_data.get("stats", [])[:3])
+        # 卡片正文
+        card = f"""**📡 TrendRadar {report_type}**\n\n"""
+        card += f"📊 **新闻概览**\n\n"
+        if hotlist_total > 0:
+            card += f"  热榜：**{hotlist_total}** 条\n"
+        if rss_count > 0:
+            card += f"  RSS：**{rss_count}** 条\n"
+        if new_count > 0:
+            card += f"  新增：**{new_count}** 条\n"
+        if ai_count > 0:
+            card += f"  AI 分析：**{ai_count}** 条\n"
+        if topics:
+            card += f"\n🔥 **最热话题**\n\n  {topics}\n"
+        card += f"\n---\n\n"
+        card += f"📄 **查看完整报告**（全部榜单 + AI 深度分析）\n\n"
+        card += f"[{pages_url}]({pages_url})\n"
+        card += f"\n> 更新时间：{_now.strftime('%Y-%m-%d %H:%M:%S')}"
+        payload = {"msgtype": "markdown", "markdown": {"content": card}}
+        content_size = len(card.encode("utf-8"))
+        print(f"发送{log_prefix}精简卡片，大小：{content_size} 字节 [{report_type}]")
+        try:
+            response = requests.post(webhook_url, headers=headers, json=payload, proxies=proxies, timeout=30)
+            if response.status_code == 200 and response.json().get("errcode") == 0:
+                print(f"{log_prefix}精简卡片发送成功 [{report_type}]")
+                return True
+            else:
+                print(f"{log_prefix}精简卡片发送失败 [{report_type}]，错误：{response.text}")
+                return False
+        except Exception as e:
+            print(f"{log_prefix}精简卡片发送出错 [{report_type}]：{e}")
+            return False
 
     # 获取分批内容，预留批次头部空间
     header_reserve = get_max_batch_header_size(header_format_type)
