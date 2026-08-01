@@ -417,6 +417,8 @@ def _load_webhook_config(config_data: Dict) -> Dict:
         # 企业微信
         "WEWORK_WEBHOOK_URL": _get_env_str("WEWORK_WEBHOOK_URL") or wework.get("webhook_url", ""),
         "WEWORK_MSG_TYPE": _get_env_str("WEWORK_MSG_TYPE") or wework.get("msg_type", "markdown"),
+        # 企业微信精简卡片模式：附带 GitHub Pages 完整报告链接（留空则保持原完整长文推送）
+        "WEWORK_PAGES_URL": _get_env_str("WEWORK_PAGES_URL") or wework.get("pages_url", ""),
         # Telegram
         "TELEGRAM_BOT_TOKEN": _get_env_str("TELEGRAM_BOT_TOKEN") or telegram.get("bot_token", ""),
         "TELEGRAM_CHAT_ID": _get_env_str("TELEGRAM_CHAT_ID") or telegram.get("chat_id", ""),
